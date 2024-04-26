@@ -190,6 +190,328 @@ router.get("/twitch/categories/all", async (req, res) => {
 
 
 
+router.get("/twitch/streams/contents", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getJustChatRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=509658&first=8",
+        options
+      );
+
+      const getFortNiteRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=33214&first=8",
+        options
+      );
+      const getFallGuyRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=512980&first=8",
+        options
+      );
+      const getMineCraftRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=27471&first=9",
+        options
+      );
+      const newJustChatRequest = getJustChatRequest.data.data.slice();
+
+      const newFortNiteRequest = getFortNiteRequest.data.data.slice();
+      const newFallGuyRequest = getFallGuyRequest.data.data.slice();
+      const newMineCraftRequest = getMineCraftRequest.data.data.slice();
+      // https://api.twitch.tv/helix/channels
+      let justChatStreams = newJustChatRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+
+      let empty_just_chat = [];
+      //
+      let justChatFetched = await axios.all(justChatStreams);
+      justChatFetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_just_chat.push({ game_name: e.game_name });
+        });
+      });
+
+      //justCHAT IMAGEURL FOLLWERS DESCRI
+      let just_chat_profile_image_url_and_followers_andDescriptions = newJustChatRequest.map(
+        (e) => {
+          return axios.get(
+            `https://api.twitch.tv/helix/users?id=${e.user_id}`,
+            options
+          );
+        }
+      );
+
+      let empty_just_chat_profile_image_url_and_followers_andDescriptions = [];
+      let just_chat_profile_image_url_and_followers_andDescriptionsFetched = await axios.all(
+        just_chat_profile_image_url_and_followers_andDescriptions
+      );
+      just_chat_profile_image_url_and_followers_andDescriptionsFetched.map(
+        (e) => {
+          e.data.data.map((e) => {
+            // console.log(e);
+            empty_just_chat_profile_image_url_and_followers_andDescriptions.push(
+              {
+                description: e.description,
+                profile_image_url: e.profile_image_url,
+                followers: e.view_count,
+              }
+            );
+          });
+        }
+      );
+      //justchat TAGs
+      let just_chat_tags = newJustChatRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_just_chat_tag = [];
+      //
+      let just_chat_tags_fetched = await axios.all(just_chat_tags);
+      just_chat_tags_fetched.map((e) => {
+        empty_just_chat_tag.push({
+          "localization_names": e.data.data.map(
+            (e) => e.broadcaster_language
+          ),
+        });
+      });
+      // console.log("sdffffffffffffffffffffffffffffffff",empty_just_chat);
+
+      let fortNiteStreams = newFortNiteRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_fortNite_streams = [];
+      //
+      let fortNiteStreams_fetched = await axios.all(fortNiteStreams);
+      fortNiteStreams_fetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_fortNite_streams.push({
+            game_name: e.game_name,
+          });
+        });
+      });
+      //image followers dscription
+      let fortNiteStreams_image_followers_description = newFortNiteRequest.map(
+        (e) => {
+          return axios.get(
+            `https://api.twitch.tv/helix/users?id=${e.user_id}`,
+            options
+          );
+        }
+      );
+      let empty_fortNiteStreams_image_followers_description = [];
+      //
+      let fortNiteStreams_image_followers_description_fetched = await axios.all(
+        fortNiteStreams_image_followers_description
+      );
+      fortNiteStreams_image_followers_description_fetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_fortNiteStreams_image_followers_description.push({
+            description: e.description,
+            profile_image_url: e.profile_image_url,
+            followers: e.view_count,
+          });
+        });
+      });
+
+      //tags
+      let fortNite_tags = newFortNiteRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_fortNite_tags = [];
+      //
+      let fortNite_tags_fetched = await axios.all(fortNite_tags);
+      fortNite_tags_fetched.map((e) => {
+        empty_fortNite_tags.push({
+          "localization_names": e.data.data.map(
+            (e) => e.broadcaster_language
+          ),
+        });
+      });
+
+      ////////////////////////////////////////////////
+      //Fallguy streams
+
+      let FallGuyStreams = newFallGuyRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_FallGuyStreams = [];
+      //
+      let FallGuyStreams_fetched = await axios.all(FallGuyStreams);
+      FallGuyStreams_fetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_FallGuyStreams.push({
+            game_name: e.game_name,
+          });
+        });
+      });
+
+      //
+      let fallGuyStreams_image_followers_description = newFallGuyRequest.map(
+        (e) => {
+          return axios.get(
+            `https://api.twitch.tv/helix/users?id=${e.user_id}`,
+            options
+          );
+        }
+      );
+      let empty_fallGuyStreams_image_followers_description = [];
+      //
+      let fallGuyStreams_image_followers_description_fetched = await axios.all(
+        fallGuyStreams_image_followers_description
+      );
+      fallGuyStreams_image_followers_description_fetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_fallGuyStreams_image_followers_description.push({
+            description: e.description,
+            profile_image_url: e.profile_image_url,
+            followers: e.view_count,
+          });
+        });
+      });
+      let fallGuy_tags = newFallGuyRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_fallGuy_tag = [];
+      //
+      let fallGuy_tags_fetched = await axios.all(fallGuy_tags);
+      fallGuy_tags_fetched.map((e) => {
+        empty_fallGuy_tag.push({
+          localization_names: e.data.data.map(
+            (e) => e.broadcaster_language
+          ),
+        });
+      });
+
+      ////////////////////////////////////////
+
+      let minCraftStreams = newMineCraftRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_minCraftStreams = [];
+      //
+      let minCraftStreams_fetched = await axios.all(minCraftStreams);
+      minCraftStreams_fetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_minCraftStreams.push({
+            game_name: e.game_name,
+          });
+        });
+      });
+
+      //
+      let minCraft_image_followers_and_description = newMineCraftRequest.map(
+        (e) => {
+          return axios.get(
+            `https://api.twitch.tv/helix/users?id=${e.user_id}`,
+            options
+          );
+        }
+      );
+      let empty_minCraft_image_followers_and_description = [];
+      //
+      let minCraft_image_followers_and_description_fetched = await axios.all(
+        minCraft_image_followers_and_description
+      );
+      minCraft_image_followers_and_description_fetched.map((e) => {
+        e.data.data.map((e) => {
+          empty_minCraft_image_followers_and_description.push({
+            description: e.description,
+            profile_image_url: e.profile_image_url,
+            followers: e.view_count,
+          });
+        });
+      });
+      //
+      let mineCraft_tags = newMineCraftRequest.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_mineCraft_tags = [];
+      //
+      let mineCraft_tags_fetched = await axios.all(mineCraft_tags);
+      mineCraft_tags_fetched.map((e) => {
+        empty_mineCraft_tags.push({
+          localization_names: e.data.data.map(
+            (e) => e.broadcaster_language
+          ),
+        });
+      });
+
+      _.merge(newJustChatRequest, empty_just_chat);
+      _.merge(newJustChatRequest, empty_just_chat_tag);
+      _.merge(
+        newJustChatRequest,
+        empty_just_chat_profile_image_url_and_followers_andDescriptions
+      );
+
+      //      newFortNiteRequest newMineCraftRequest newFallGuyRequest
+      _.merge(newMineCraftRequest, empty_minCraftStreams);
+      _.merge(
+        newMineCraftRequest,
+        empty_minCraft_image_followers_and_description
+      );
+      _.merge(newMineCraftRequest, empty_mineCraft_tags);
+
+      //
+      _.merge(newFallGuyRequest, empty_FallGuyStreams);
+      _.merge(
+        newFallGuyRequest,
+        empty_fallGuyStreams_image_followers_description
+      );
+      _.merge(newFallGuyRequest, empty_fallGuy_tag);
+      //
+      _.merge(newFortNiteRequest, empty_fortNite_streams);
+      _.merge(
+        newFortNiteRequest,
+        empty_fortNiteStreams_image_followers_description
+      );
+      _.merge(newFortNiteRequest, empty_fortNite_tags);
+
+      res.send({
+        frontPage: {
+          justChat: newJustChatRequest,
+          fallGuy: newFallGuyRequest,
+          fortNite: newFortNiteRequest,
+          mineCraft: newMineCraftRequest,
+        },
+      });
+    }
+  } catch (e) {
+    console.log("ERRRRRR");
+  }
+});
+
 
 router.use('/emojis', emojis);
 
