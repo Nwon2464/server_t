@@ -7,14 +7,15 @@ const axios = require("axios");
 const router = express.Router();
 
 const _ = require("lodash");
-const client_id = process.env.CLIENT_ID;
-const client_secret = process.env.CLIENT_SECRET;
+// CLIENT_ID = "otpjthd6a9addxg5qqv04x24yzo861"
+// CLIENT_SECRET = "yjmcacd1c2r4w0dxwsglvfxujo5fuy"
+const client_id = "otpjthd6a9addxg5qqv04x24yzo861";
+const client_secret = "yjmcacd1c2r4w0dxwsglvfxujo5fuy";
 router.get('/', (req, res) => {
   res.json({
     message: 'API - 👋🌎🌍🌏',
   });
 });
-
 
 
 router.get("/twitch", async (req, res) => {
