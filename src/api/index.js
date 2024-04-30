@@ -1285,6 +1285,106 @@ router.get("/twitch/fallguys", async (req, res) => {
 
 
 
+router.get("/twitch/streams/:id", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        `https://api.twitch.tv/helix/streams?game_id=${req.params.id}&first=100`,
+        options
+      );
+
+      const getTopGames = await axios.get(
+        `https://api.twitch.tv/helix/games?id=${req.params.id}`,
+        options
+      );
+
+      const topGames = getTopGames.data.data;
+      const sliced = getStreamsRequest.data.data.slice();
+      const totalViews = getStreamsRequest.data.data
+        .map((el) => el.viewer_count)
+        .reduce((acc, curr) => {
+          return acc + curr;
+        });
+      //
+      const profileImage = getStreamsRequest.data.data.slice();
+
+      let vr = profileImage.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/users?id=${e.user_id}`,
+          options
+        );
+      });
+
+      let empty_followers = [];
+      //
+
+      let imageResult = await axios.all(vr);
+      let ta2 = [];
+      imageResult.map((e) => {
+        // e.data.data.map((e) => console.log(e.vi));
+        empty_followers.push({
+          totalFollow: e.data.data
+            .map((e) => e.view_count)
+            .reduce((acc, cur) => acc + cur, 0),
+        });
+
+        e.data.data.map((e) => {
+          // console.log(e)
+          ta2.push({
+            profile_image_url: e.profile_image_url,
+            description: e.description,
+          });
+        });
+      });
+      const totalF = empty_followers
+        .map((e) => e.totalFollow)
+        .reduce((acc, cur) => acc + cur, 0);
+
+      _.merge(sliced, ta2);
+
+      //
+      // let tags = [];
+      let ar = getStreamsRequest.data.data.map((data) => {
+        // console.log("------------>",data.tag_ids[0]);
+        return axios.get(
+          `https://api.twitch.tv/helix/users?id=${data.user_id}`,
+          options
+        );
+      });
+      let result = await axios.all(ar);
+      let ta = [];
+      result.map((e) => {
+        e.data.data.map((e) => {
+          // localization_names:res["broadcaster_language"]
+
+          ta.push({ localization_names: e.broadcaster_language });
+        });
+      });
+      _.merge(sliced, ta);
+      res.json({
+        totalFollowers: totalF,
+        selectedGame: topGames,
+        totalCurrentWatching: totalViews,
+        streams: sliced,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+
 router.use('/emojis', emojis);
 
 module.exports = router;
