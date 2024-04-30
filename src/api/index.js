@@ -513,6 +513,778 @@ router.get("/twitch/streams/contents", async (req, res) => {
 });
 
 
+router.get("/twitch/categories/all", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        `https://api.twitch.tv/helix/games/top?first=100`,
+        options
+      );
+      let topGames = getStreamsRequest.data.data.slice();
+      ///////////////////////////
+      //topgames
+
+      let imageChanged = topGames.map((e) => {
+        // console.log(e);
+        return axios.get(
+          `https://api.twitch.tv/helix/streams?game_id=${e.id}&first=100`,
+          options
+        );
+      });
+      let empty_topGames = [];
+      //
+      let topGames_fetched = await axios.all(imageChanged);
+      topGames_fetched.map((e) => {
+        console.log(e.data.data);
+        empty_topGames.push({
+          gameViewers: e.data.data
+            .map((e) => e.viewer_count)
+            .reduce((acc, cur) => acc + cur, 0),
+        });
+      });
+      _.merge(topGames, empty_topGames);
+      res.json({ topGames });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+
+router.get("/twitch/topgames", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        "https://api.twitch.tv/helix/games/top?first=8",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "client-id": client_id,
+          },
+        }
+      );
+
+      const newStreamsData = getStreamsRequest.data.data;
+      // --------------------
+
+      // console.log(newStreamsData);
+
+      let allStreams = newStreamsData.slice();
+      let URL1 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[0].id}`;
+      let URL2 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[1].id}`;
+      let URL3 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[2].id}`;
+      let URL4 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[3].id}`;
+      let URL5 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[4].id}`;
+      let URL6 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[5].id}`;
+      let URL7 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[6].id}`;
+      let URL8 = `https://api.twitch.tv/helix/streams?game_id=${newStreamsData[7].id}`;
+
+      const promise1 = axios.get(URL1, options);
+      const promise2 = axios.get(URL2, options);
+      const promise3 = axios.get(URL3, options);
+      const promise4 = axios.get(URL4, options);
+      const promise5 = axios.get(URL5, options);
+      const promise6 = axios.get(URL6, options);
+      const promise7 = axios.get(URL7, options);
+      const promise8 = axios.get(URL8, options);
+
+      await axios
+        .all([
+          promise1,
+          promise2,
+          promise3,
+          promise4,
+          promise5,
+          promise6,
+          promise7,
+          promise8,
+        ])
+        .then(
+          axios.spread((...response) => {
+            // console.log(response);
+            let gameViewers = [];
+            response.map((data, i) => {
+              // console.log(data.data);
+              gameViewers.push({
+                gameViewers: data.data.data
+                  .map((e) => e.viewer_count)
+                  .reduce((acc, cur) => acc + cur, 0),
+              });
+            });
+            _.merge(allStreams, gameViewers);
+
+            res.send(allStreams);
+          })
+        );
+    }
+  } catch (error) {
+    console.log("ERROR287");
+  }
+});
+
+
+router.get("/twitch/streams", async (req, res, next) => {
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?first=8",
+        options
+      );
+      const getTopGamesRequest = await axios.get(
+        "https://api.twitch.tv/helix/games/top?first=8",
+        options
+      );
+
+      const newStreamsData = getStreamsRequest.data.data.slice();
+      const newTopGamesRequest = getTopGamesRequest.data.data.slice();
+      ///////////////////////////
+      //topgames
+
+      let topGames = newTopGamesRequest.map((e) => {
+        // console.log(e);
+        return axios.get(
+          `https://api.twitch.tv/helix/streams?game_id=${e.id}`,
+          options
+        );
+      });
+      let empty_topGames = [];
+      //
+      let topGames_fetched = await axios.all(topGames);
+      topGames_fetched.map((e) => {
+        empty_topGames.push({
+          gameViewers: e.data.data
+            .map((e) => e.viewer_count)
+            .reduce((acc, cur) => acc + cur, 0),
+        });
+      });
+
+      ///////////////////////////
+
+      //To Get Game_NAME
+
+      let game_name_data = newStreamsData.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_game_name = [];
+      //
+      let game_name_fetched = await axios.all(game_name_data);
+      game_name_fetched.map((e) => {
+        e.data.data.map((e) => {
+          // console.log(e);
+          empty_game_name.push({ game_name: e.game_name });
+        });
+      });
+
+      ///////////////////////////
+      let profileImageUrlAndFollowersAndDescriptions = newStreamsData.map(
+        (e) => {
+          return axios.get(
+            `https://api.twitch.tv/helix/users?id=${e.user_id}`,
+            options
+          );
+        }
+      );
+
+      let emptyProfileImageUrlAndFollowersAndDescriptions = [];
+      let profileImageUrlAndFollowersAndDescriptionsFected = await axios.all(
+        profileImageUrlAndFollowersAndDescriptions
+      );
+      profileImageUrlAndFollowersAndDescriptionsFected.map((e) => {
+        e.data.data.map((e) => {
+          // console.log(e);
+          emptyProfileImageUrlAndFollowersAndDescriptions.push({
+            description: e.description,
+            profile_image_url: e.profile_image_url,
+            followers: e.view_count,
+          });
+        });
+      });
+
+      /////////////////////////////////////////////////
+
+      let tags = newStreamsData.map((e) => {
+        return axios.get(
+          `https://api.twitch.tv/helix/channels?broadcaster_id=${e.user_id}`,
+          options
+        );
+      });
+      let empty_tags = [];
+
+      let tags_fetched = await axios.all(tags);
+      tags_fetched.map((e) => {
+        empty_tags.push({
+          localization_names: e.data.data.map(
+            (e) => e.broadcaster_language
+          ),
+        });
+      });
+      //////////////////////////////
+      //justchat STREAMS
+      //////////////////////////////////////////////////
+      //FORTNITE STREAMS
+
+      // console.log(empty_topGames);
+      _.merge(newTopGamesRequest, empty_topGames);
+      _.merge(newStreamsData, empty_game_name);
+      _.merge(newStreamsData, emptyProfileImageUrlAndFollowersAndDescriptions);
+      _.merge(newStreamsData, empty_tags);
+
+      res.send({
+        frontPage: {
+          allStreams: newStreamsData,
+          topGames: newTopGamesRequest,
+        },
+      });
+    }
+  } catch (e) {
+    res.status(500);
+    next(e);
+  }
+});
+
+
+
+// minecraft endpoints 
+//https://api.twitch.tv/helix/channels?broadcaster_id= 
+// tag replace with above link or else
+
+
+router.get("/twitch/minecraft", async (req, res) => {
+  // 509658
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=27471&first=9",
+        options
+      );
+
+      const newStreamsData = getStreamsRequest.data.data;
+      // --------------------
+      let allStreams = newStreamsData.slice();
+
+      let URL1 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[0].user_id}`;
+      let URL2 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[1].user_id}`;
+      let URL3 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[2].user_id}`;
+      let URL4 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[3].user_id}`;
+      let URL5 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[4].user_id}`;
+
+      let URL6 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[5].user_id}`;
+      let URL7 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[6].user_id}`;
+      let URL8 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[7].user_id}`;
+
+      let UserURL1 = `https://api.twitch.tv/helix/users?id=${newStreamsData[0].user_id}`;
+      let UserURL2 = `https://api.twitch.tv/helix/users?id=${newStreamsData[1].user_id}`;
+      let UserURL3 = `https://api.twitch.tv/helix/users?id=${newStreamsData[2].user_id}`;
+      let UserURL4 = `https://api.twitch.tv/helix/users?id=${newStreamsData[3].user_id}`;
+      let UserURL5 = `https://api.twitch.tv/helix/users?id=${newStreamsData[4].user_id}`;
+      let UserURL6 = `https://api.twitch.tv/helix/users?id=${newStreamsData[5].user_id}`;
+      let UserURL7 = `https://api.twitch.tv/helix/users?id=${newStreamsData[6].user_id}`;
+      let UserURL8 = `https://api.twitch.tv/helix/users?id=${newStreamsData[7].user_id}`;
+
+
+      const promise1 = axios.get(URL1, options);
+      const promise2 = axios.get(URL2, options);
+      const promise3 = axios.get(URL3, options);
+      const promise4 = axios.get(URL4, options);
+      const promise5 = axios.get(URL5, options);
+      const promise6 = axios.get(URL6, options);
+      const promise7 = axios.get(URL7, options);
+      const promise8 = axios.get(URL8, options);
+
+      const promiseUser1 = axios.get(UserURL1, options);
+      const promiseUser2 = axios.get(UserURL2, options);
+      const promiseUser3 = axios.get(UserURL3, options);
+      const promiseUser4 = axios.get(UserURL4, options);
+      const promiseUser5 = axios.get(UserURL5, options);
+      const promiseUser6 = axios.get(UserURL6, options);
+      const promiseUser7 = axios.get(UserURL7, options);
+      const promiseUser8 = axios.get(UserURL8, options);
+
+      await axios
+        .all([
+          promise1,
+          promise2,
+          promise3,
+          promise4,
+          promise5,
+          promise6,
+          promise7,
+          promise8,
+
+          promiseUser1,
+          promiseUser2,
+          promiseUser3,
+          promiseUser4,
+          promiseUser5,
+          promiseUser6,
+          promiseUser7,
+          promiseUser8,
+        ])
+        .then(
+          axios.spread((...response) => {
+            let gameName = [];
+            let imageUrl = [];
+            let tags = [];
+
+            response.map((data, i) => {
+              console.log(data);
+              data.data.data.map((res) => {
+                if (res.hasOwnProperty("profile_image_url")) {
+                  // console.log(res);
+                  imageUrl.push({
+                    profile_image_url: res["profile_image_url"],
+                  });
+                }
+                if (res.hasOwnProperty("game_id")) {
+                  // console.log(res);
+                  gameName.push({ game_name: res.game_name });
+                }
+                
+                if(res.hasOwnProperty("broadcaster_language")){
+                  tags.push({
+                   localization_names:res["broadcaster_language"]
+                 })
+                }
+              });
+            });
+            _.merge(allStreams, imageUrl);
+            _.merge(allStreams, gameName);
+            _.merge(allStreams, tags);
+            
+            
+            res.send(allStreams);
+          })
+        );
+    }
+  } catch (error) {
+    console.log("ERROR628");
+  }
+});
+
+
+router.get("/twitch/fortnite", async (req, res) => {
+  // 509658
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=33214&first=9",
+        options
+      );
+
+      const newStreamsData = getStreamsRequest.data.data;
+      // --------------------
+      let allStreams = newStreamsData.slice();
+
+      let URL1 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[0].user_id}`;
+      let URL2 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[1].user_id}`;
+      let URL3 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[2].user_id}`;
+      let URL4 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[3].user_id}`;
+      let URL5 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[4].user_id}`;
+
+      let URL6 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[5].user_id}`;
+      let URL7 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[6].user_id}`;
+      let URL8 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[7].user_id}`;
+
+      let UserURL1 = `https://api.twitch.tv/helix/users?id=${newStreamsData[0].user_id}`;
+      let UserURL2 = `https://api.twitch.tv/helix/users?id=${newStreamsData[1].user_id}`;
+      let UserURL3 = `https://api.twitch.tv/helix/users?id=${newStreamsData[2].user_id}`;
+      let UserURL4 = `https://api.twitch.tv/helix/users?id=${newStreamsData[3].user_id}`;
+      let UserURL5 = `https://api.twitch.tv/helix/users?id=${newStreamsData[4].user_id}`;
+      let UserURL6 = `https://api.twitch.tv/helix/users?id=${newStreamsData[5].user_id}`;
+      let UserURL7 = `https://api.twitch.tv/helix/users?id=${newStreamsData[6].user_id}`;
+      let UserURL8 = `https://api.twitch.tv/helix/users?id=${newStreamsData[7].user_id}`;
+
+
+      const promise1 = axios.get(URL1, options);
+      const promise2 = axios.get(URL2, options);
+      const promise3 = axios.get(URL3, options);
+      const promise4 = axios.get(URL4, options);
+      const promise5 = axios.get(URL5, options);
+      const promise6 = axios.get(URL6, options);
+      const promise7 = axios.get(URL7, options);
+      const promise8 = axios.get(URL8, options);
+
+      const promiseUser1 = axios.get(UserURL1, options);
+      const promiseUser2 = axios.get(UserURL2, options);
+      const promiseUser3 = axios.get(UserURL3, options);
+      const promiseUser4 = axios.get(UserURL4, options);
+      const promiseUser5 = axios.get(UserURL5, options);
+      const promiseUser6 = axios.get(UserURL6, options);
+      const promiseUser7 = axios.get(UserURL7, options);
+      const promiseUser8 = axios.get(UserURL8, options);
+
+      await axios
+        .all([
+          promise1,
+          promise2,
+          promise3,
+          promise4,
+          promise5,
+          promise6,
+          promise7,
+          promise8,
+
+          promiseUser1,
+          promiseUser2,
+          promiseUser3,
+          promiseUser4,
+          promiseUser5,
+          promiseUser6,
+          promiseUser7,
+          promiseUser8,
+        ])
+        .then(
+          axios.spread((...response) => {
+            let gameName = [];
+            let imageUrl = [];
+            let tags = [];
+
+            response.map((data, i) => {
+              console.log(data);
+              data.data.data.map((res) => {
+                if (res.hasOwnProperty("profile_image_url")) {
+                  // console.log(res);
+                  imageUrl.push({
+                    profile_image_url: res["profile_image_url"],
+                  });
+                }
+                if (res.hasOwnProperty("game_id")) {
+                  // console.log(res);
+                  gameName.push({ game_name: res.game_name });
+                }
+                
+                if(res.hasOwnProperty("broadcaster_language")){
+                  tags.push({
+                   localization_names:res["broadcaster_language"]
+                 })
+                }
+              });
+            });
+            _.merge(allStreams, imageUrl);
+            _.merge(allStreams, gameName);
+            _.merge(allStreams, tags);
+            
+            
+            res.send(allStreams);
+          })
+        );
+    }
+  } catch (error) {
+    console.log("ERROR628");
+  }
+});
+
+
+
+router.get("/twitch/chat", async (req, res) => {
+  // 509658
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=509658&first=9",
+        options
+      );
+
+      const newStreamsData = getStreamsRequest.data.data;
+      // --------------------
+      let allStreams = newStreamsData.slice();
+
+      let URL1 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[0].user_id}`;
+      let URL2 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[1].user_id}`;
+      let URL3 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[2].user_id}`;
+      let URL4 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[3].user_id}`;
+      let URL5 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[4].user_id}`;
+
+      let URL6 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[5].user_id}`;
+      let URL7 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[6].user_id}`;
+      let URL8 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[7].user_id}`;
+
+      let UserURL1 = `https://api.twitch.tv/helix/users?id=${newStreamsData[0].user_id}`;
+      let UserURL2 = `https://api.twitch.tv/helix/users?id=${newStreamsData[1].user_id}`;
+      let UserURL3 = `https://api.twitch.tv/helix/users?id=${newStreamsData[2].user_id}`;
+      let UserURL4 = `https://api.twitch.tv/helix/users?id=${newStreamsData[3].user_id}`;
+      let UserURL5 = `https://api.twitch.tv/helix/users?id=${newStreamsData[4].user_id}`;
+      let UserURL6 = `https://api.twitch.tv/helix/users?id=${newStreamsData[5].user_id}`;
+      let UserURL7 = `https://api.twitch.tv/helix/users?id=${newStreamsData[6].user_id}`;
+      let UserURL8 = `https://api.twitch.tv/helix/users?id=${newStreamsData[7].user_id}`;
+
+
+      const promise1 = axios.get(URL1, options);
+      const promise2 = axios.get(URL2, options);
+      const promise3 = axios.get(URL3, options);
+      const promise4 = axios.get(URL4, options);
+      const promise5 = axios.get(URL5, options);
+      const promise6 = axios.get(URL6, options);
+      const promise7 = axios.get(URL7, options);
+      const promise8 = axios.get(URL8, options);
+
+      const promiseUser1 = axios.get(UserURL1, options);
+      const promiseUser2 = axios.get(UserURL2, options);
+      const promiseUser3 = axios.get(UserURL3, options);
+      const promiseUser4 = axios.get(UserURL4, options);
+      const promiseUser5 = axios.get(UserURL5, options);
+      const promiseUser6 = axios.get(UserURL6, options);
+      const promiseUser7 = axios.get(UserURL7, options);
+      const promiseUser8 = axios.get(UserURL8, options);
+
+      await axios
+        .all([
+          promise1,
+          promise2,
+          promise3,
+          promise4,
+          promise5,
+          promise6,
+          promise7,
+          promise8,
+
+          promiseUser1,
+          promiseUser2,
+          promiseUser3,
+          promiseUser4,
+          promiseUser5,
+          promiseUser6,
+          promiseUser7,
+          promiseUser8,
+        ])
+        .then(
+          axios.spread((...response) => {
+            let gameName = [];
+            let imageUrl = [];
+            let tags = [];
+
+            response.map((data, i) => {
+              console.log(data);
+              data.data.data.map((res) => {
+                if (res.hasOwnProperty("profile_image_url")) {
+                  // console.log(res);
+                  imageUrl.push({
+                    profile_image_url: res["profile_image_url"],
+                  });
+                }
+                if (res.hasOwnProperty("game_id")) {
+                  // console.log(res);
+                  gameName.push({ game_name: res.game_name });
+                }
+                
+                if(res.hasOwnProperty("broadcaster_language")){
+                  tags.push({
+                   localization_names:res["broadcaster_language"]
+                 })
+                }
+              });
+            });
+            _.merge(allStreams, imageUrl);
+            _.merge(allStreams, gameName);
+            _.merge(allStreams, tags);
+            
+            
+            res.send(allStreams);
+          })
+        );
+    }
+  } catch (error) {
+    console.log("ERROR628");
+  }
+});
+
+
+
+
+router.get("/twitch/fallguys", async (req, res) => {
+  // 509658
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        "https://api.twitch.tv/helix/streams?game_id=512980&first=9",
+        options
+      );
+
+      const newStreamsData = getStreamsRequest.data.data;
+      // --------------------
+      let allStreams = newStreamsData.slice();
+
+      let URL1 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[0].user_id}`;
+      let URL2 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[1].user_id}`;
+      let URL3 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[2].user_id}`;
+      let URL4 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[3].user_id}`;
+      let URL5 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[4].user_id}`;
+
+      let URL6 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[5].user_id}`;
+      let URL7 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[6].user_id}`;
+      let URL8 = `https://api.twitch.tv/helix/channels?broadcaster_id=${newStreamsData[7].user_id}`;
+
+      let UserURL1 = `https://api.twitch.tv/helix/users?id=${newStreamsData[0].user_id}`;
+      let UserURL2 = `https://api.twitch.tv/helix/users?id=${newStreamsData[1].user_id}`;
+      let UserURL3 = `https://api.twitch.tv/helix/users?id=${newStreamsData[2].user_id}`;
+      let UserURL4 = `https://api.twitch.tv/helix/users?id=${newStreamsData[3].user_id}`;
+      let UserURL5 = `https://api.twitch.tv/helix/users?id=${newStreamsData[4].user_id}`;
+      let UserURL6 = `https://api.twitch.tv/helix/users?id=${newStreamsData[5].user_id}`;
+      let UserURL7 = `https://api.twitch.tv/helix/users?id=${newStreamsData[6].user_id}`;
+      let UserURL8 = `https://api.twitch.tv/helix/users?id=${newStreamsData[7].user_id}`;
+
+
+      const promise1 = axios.get(URL1, options);
+      const promise2 = axios.get(URL2, options);
+      const promise3 = axios.get(URL3, options);
+      const promise4 = axios.get(URL4, options);
+      const promise5 = axios.get(URL5, options);
+      const promise6 = axios.get(URL6, options);
+      const promise7 = axios.get(URL7, options);
+      const promise8 = axios.get(URL8, options);
+
+      const promiseUser1 = axios.get(UserURL1, options);
+      const promiseUser2 = axios.get(UserURL2, options);
+      const promiseUser3 = axios.get(UserURL3, options);
+      const promiseUser4 = axios.get(UserURL4, options);
+      const promiseUser5 = axios.get(UserURL5, options);
+      const promiseUser6 = axios.get(UserURL6, options);
+      const promiseUser7 = axios.get(UserURL7, options);
+      const promiseUser8 = axios.get(UserURL8, options);
+
+      await axios
+        .all([
+          promise1,
+          promise2,
+          promise3,
+          promise4,
+          promise5,
+          promise6,
+          promise7,
+          promise8,
+
+          promiseUser1,
+          promiseUser2,
+          promiseUser3,
+          promiseUser4,
+          promiseUser5,
+          promiseUser6,
+          promiseUser7,
+          promiseUser8,
+        ])
+        .then(
+          axios.spread((...response) => {
+            let gameName = [];
+            let imageUrl = [];
+            let tags = [];
+
+            response.map((data, i) => {
+              console.log(data);
+              data.data.data.map((res) => {
+                if (res.hasOwnProperty("profile_image_url")) {
+                  // console.log(res);
+                  imageUrl.push({
+                    profile_image_url: res["profile_image_url"],
+                  });
+                }
+                if (res.hasOwnProperty("game_id")) {
+                  // console.log(res);
+                  gameName.push({ game_name: res.game_name });
+                }
+                
+                if(res.hasOwnProperty("broadcaster_language")){
+                  tags.push({
+                   localization_names:res["broadcaster_language"]
+                 })
+                }
+              });
+            });
+            _.merge(allStreams, imageUrl);
+            _.merge(allStreams, gameName);
+            _.merge(allStreams, tags);
+            
+            
+            res.send(allStreams);
+          })
+        );
+    }
+  } catch (error) {
+    console.log("ERROR628");
+  }
+});
+
+
+
 router.use('/emojis', emojis);
 
 module.exports = router;
