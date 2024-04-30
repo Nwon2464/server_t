@@ -1384,6 +1384,41 @@ router.get("/twitch/streams/:id", async (req, res) => {
   }
 });
 
+router.get("/twitch/streams/user/:id", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `https://id.twitch.tv/oauth2/token?client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials`
+    );
+    const token = response.data.access_token;
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "client-id": client_id,
+      },
+    };
+
+    if (token) {
+      const getStreamsRequest = await axios.get(
+        `https://api.twitch.tv/helix/videos?user_id=${req.params.id}&first=50`,
+        options
+      );
+
+      // console.log(getStreamsRequest.data.data);
+      // const getTopGames = await axios.get(
+      //   `https://api.twitch.tv/helix/videos?id=${req.params.id}`,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //       "client-id": client_id,
+      //     },
+      //   }
+      // );
+      res.json({ streams: getStreamsRequest.data.data });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
 
 router.use('/emojis', emojis);
 
