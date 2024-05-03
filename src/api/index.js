@@ -54,7 +54,6 @@ router.get("/twitch", async (req, res) => {
             user_urls.push(`https://api.twitch.tv/helix/users?id=${newStreamsData[i].user_id}`);
           //   // user_tags.push(`https://api.twitch.tv/helix/tags/streams`);
           }
-          // console.log(allStreams,'dddddddddd');
       
           const promise1 = axios.get(urls[0], options);
           const promise2 = axios.get(urls[1], options);
@@ -95,21 +94,16 @@ router.get("/twitch", async (req, res) => {
                     })
                   }
                   if (res.hasOwnProperty("profile_image_url")) {
-                    // console.log(res);
                     imageUrl.push({
-                      description: res["description"],
                       profile_image_url: res["profile_image_url"],
                     });
                   }
                   if (res.hasOwnProperty("description")) {
-                    // console.log(res);
                     description.push({
                       description: res["description"],
-                      // profile_image_url: res["profile_image_url"],
                     });
                   }
                   if (res.hasOwnProperty("game_id")) {
-                    // console.log(res);
                     gameName.push({ game_name: res.game_name });
                   }
                 })
@@ -118,7 +112,6 @@ router.get("/twitch", async (req, res) => {
               _.merge(allStreams, gameName);
               _.merge(allStreams, tags);
               _.merge(allStreams, description);
-    
               res.send(
                 allStreams
               );
@@ -150,23 +143,21 @@ router.get("/twitch/categories/all", async (req, res) => {
       const getStreamsRequest = await axios.get(
         `https://api.twitch.tv/helix/games/top?first=100`,
         options
-      );
+      )
       let topGames = getStreamsRequest.data.data.slice();
       ///////////////////////////
       //topgames
 
       let imageChanged = topGames.map((e) => {
-        // console.log(e);
         return axios.get(
           `https://api.twitch.tv/helix/streams?game_id=${e.id}&first=100`,
           options
         );
       });
       let empty_topGames = [];
-      //
       let topGames_fetched = await axios.all(imageChanged);
       topGames_fetched.map((e) => {
-        console.log(e.data.data);
+        // console.log(e.data.data);
         empty_topGames.push({
           gameViewers: e.data.data
             .map((e) => e.viewer_count)
@@ -275,6 +266,7 @@ router.get("/twitch/streams/contents", async (req, res) => {
       //
       let just_chat_tags_fetched = await axios.all(just_chat_tags);
       just_chat_tags_fetched.map((e) => {
+        // console.log(e.data.data);
         empty_just_chat_tag.push({
           "localization_names": e.data.data.map(
             (e) => e.broadcaster_language
@@ -501,7 +493,7 @@ router.get("/twitch/streams/contents", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log("ERRRRRR");
+    console.log("error");
   }
 });
 
