@@ -1,18 +1,10 @@
 require('dotenv').config();
 const express = require('express');
-
 const emojis = require('./emojis');
-
 const axios = require("axios");
-
+const replaceThumbnailSize = require("./../utils");
 const router = express.Router();
-
 const _ = require("lodash");
-// CLIENT_ID = "otpjthd6a9addxg5qqv04x24yzo861"
-// CLIENT_SECRET = "yjmcacd1c2r4w0dxwsglvfxujo5fuy"
-// const client_id = "otpjthd6a9addxg5qqv04x24yzo861";
-// const client_secret = "yjmcacd1c2r4w0dxwsglvfxujo5fuy";
-
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 
@@ -131,18 +123,18 @@ router.get('/tstreams', async (req, res) => {
     categories: {}
   };
 
-  // console.log(topGames,"SDF");
 
   for (const game of topGames) {
-    // data.topGamesCategories[game.name]=[game.box_art_url,game.id];
     data.topGames[game.name] = await fetchTopStreams(token,game.id);
+    
     for(const user of data.topGames[game.name]){
-        const userInfo=await fetchTopStreamersInfo(token,user.user_id);
-      // console.log(user);
-
+      user.thumbnail_url=replaceThumbnailSize(user.thumbnail_url,440,248);
+      const userInfo=await fetchTopStreamersInfo(token,user.user_id);
       if (userInfo && userInfo.length > 0) {
+        const url = userInfo[0].profile_image_url;
+        const replacedData = replaceThumbnailSize(url,300,300);
         _.merge(user, {
-          profile_image_url: userInfo[0].profile_image_url,
+          profile_image_url: replacedData,
           description: userInfo[0].description
         });
       }
