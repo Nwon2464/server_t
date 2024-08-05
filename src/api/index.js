@@ -88,7 +88,7 @@ const fetchTopStreams = async (token, category)=>{
         game_id: category,
       }
     });
-    
+    // console.log(response.data.data);
     return response.data.data;
   }catch(error){
     console.log("Error fetch top streams",error);
@@ -96,6 +96,20 @@ const fetchTopStreams = async (token, category)=>{
   }
 }
 
+const fetchTopStreamersInfo = async (token, id)=>{
+  try{
+    const response = await axios.get(`https://api.twitch.tv/helix/users?id=${id}`, {
+      headers: {
+        "client-id": client_id,
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    return response.data.data;
+  }catch(error){
+    console.log("Error fetch top streams",error);
+    return [];
+  }
+}
 
 router.get('/tstreams', async (req, res) => {
   const token = await getToken();
@@ -114,14 +128,27 @@ router.get('/tstreams', async (req, res) => {
   const topGames = await getTopGames(token);
   const data = {
     topGames: {},
-    topGamesCategories:{},
     categories: {}
   };
-  
+
+  // console.log(topGames,"SDF");
+
   for (const game of topGames) {
-    data.topGamesCategories[game.name]=[game.box_art_url,game.id];
+    // data.topGamesCategories[game.name]=[game.box_art_url,game.id];
     data.topGames[game.name] = await fetchTopStreams(token,game.id);
+    for(const user of data.topGames[game.name]){
+        const userInfo=await fetchTopStreamersInfo(token,user.user_id);
+      // console.log(user);
+
+      if (userInfo && userInfo.length > 0) {
+        _.merge(user, {
+          profile_image_url: userInfo[0].profile_image_url,
+          description: userInfo[0].description
+        });
+      }
+    }
   }
+
 
   for (const [category, id] of Object.entries(categories)) {
       data.categories[category] = await fetchStreams(token, id);
