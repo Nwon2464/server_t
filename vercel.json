@@ -2,20 +2,20 @@
     "version": 2,
     "builds": [
         {
-            "src": "api/streams.js",
+            "src": "src/app.js",
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/streams",
-            "dest": "/api/streams.js"
+            "dest": "/src/app.js"
         }
     ],
     "rewrites": [
         {
             "source": "/(.*)",
-            "destination": "/api"
+            "destination": "/src/app.js"
         }
     ]
 }

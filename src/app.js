@@ -1,10 +1,11 @@
+require('dotenv').config();
+
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const axios = require('axios');
 
-require('dotenv').config();
 
 const middlewares = require('./middlewares');
 const api = require('./api');
