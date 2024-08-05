@@ -114,10 +114,12 @@ router.get('/tstreams', async (req, res) => {
   const topGames = await getTopGames(token);
   const data = {
     topGames: {},
+    topGamesCategories:{},
     categories: {}
   };
-
+  
   for (const game of topGames) {
+    data.topGamesCategories[game.name]=[game.box_art_url,game.id];
     data.topGames[game.name] = await fetchTopStreams(token,game.id);
   }
 

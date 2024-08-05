@@ -7,7 +7,7 @@ const client_secret = process.env.CLIENT_SECRET;
 app.listen(port, () => {
   /* eslint-disable no-console */
 
-  console.log(process.env);
+  // console.log(process.env);
   console.log(`!Listening: http://localhost:${port}`);
   //
   /* eslint-enable no-console */
