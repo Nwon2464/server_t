@@ -6,13 +6,11 @@
             "use": "@vercel/node"
         }
     ],
-    "routes": [
-        {
-            "src": "/streams",
-            "dest": "/src/app.js"
-        }
-    ],
     "rewrites": [
+        {
+            "source": "/streams",
+            "destination": "/src/app.js"
+        },
         {
             "source": "/(.*)",
             "destination": "/src/app.js"
