@@ -1,4 +1,17 @@
 {
+    "version": 2,
+    "builds": [
+        {
+            "src": "api/streams.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/streams",
+            "dest": "/api/streams.js"
+        }
+    ],
     "rewrites": [
         {
             "source": "/(.*)",
