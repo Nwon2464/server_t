@@ -29,7 +29,7 @@ mongoose.connect(uri, {
 });
 
 const db = mongoose.connection;
-db.once("open", () => { console.log("Mongo DB Atlas has been connected!!"); });
+db.once("open", () => { console.log("Mongo DB Atlas has been connected!!!"); });
 app.use(passport.initialize());
 app.use(passport.session());
 
