@@ -136,13 +136,6 @@ router.get("/logout", (req, res) => {
 router.get("/google", passport.authenticate("google", {
     scope : [ "email", "profile" ],
 }));
-router.get("/google/callback", passport.authenticate("google"), (req, res) => {
-<<<<<<< Updated upstream
-    res.redirect("/");
-    // res.send(req.user);
-=======
-  res.redirect("/");
->>>>>>> Stashed changes
-});
+router.get("/google/callback", passport.authenticate("google"), (req, res) => { res.redirect("/"); });
 
 module.exports = router;
