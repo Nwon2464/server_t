@@ -9,7 +9,7 @@ passport.deserializeUser((id, done) => { Users.findById(id).then((user) => { don
 passport.use(new GoogleStrategy({
     clientID : process.env.GOOGLE_CLIENT_ID,
     clientSecret : process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL : "/auth/google/redirect",
+    callbackURL : "https://server-t.vercel.app/auth/google/redirect",
 },
                                 (accessToken, refreshToken, profile, done) => {
                                     // console.log(profile);
