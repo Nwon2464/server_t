@@ -136,6 +136,10 @@ router.get("/logout", (req, res) => {
 router.get("/google", passport.authenticate("google", {
     scope : [ "email", "profile" ],
 }));
-router.get("/google/callback", passport.authenticate("google"), (req, res) => { res.redirect("/"); });
+router.get("/google/redirect", passport.authenticate("google"), (req, res) => {
+    // console.log("SSS");
+    res.redirect("/");
+    // res.redirect("http://localhost:3000");
+});
 
 module.exports = router;
