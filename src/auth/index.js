@@ -31,6 +31,8 @@ const createTokenSendResponse = (user, res, next) => {
                  if (error) {
                      respondErrorToken422(res, next);
                  } else {
+                    // res.redirect("/");
+                    // console.log(user);
                      res.json({token, user});
                  }
              });
