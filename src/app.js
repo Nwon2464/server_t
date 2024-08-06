@@ -3,46 +3,22 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
-<<<<<<< Updated upstream
 const mongoose = require("mongoose");
 const axios = require('axios');
-=======
->>>>>>> Stashed changes
 const passport = require("passport");
 const cookieSession = require("cookie-session");
 const authRoutes = require("./auth");
 require("./config");
-<<<<<<< Updated upstream
-=======
-const mongoose = require("mongoose");
->>>>>>> Stashed changes
 
 const middlewares = require('./middlewares');
 const api = require('./api');
 
-// const { connectDB } = require('./config/MongoClient');
-// const { createUser, findUserByGoogleId } = require('./models/user');
-
-
 const app = express();
 
-<<<<<<< Updated upstream
 app.use(cookieSession({
     maxAge : 24 * 60 * 60 * 1000, // 1day for authorized cookie
     keys : [ process.env.COOKIE_KEY ],
 }));
-=======
-
-
-// connectDB();
-
-app.use(
-  cookieSession({
-    maxAge: 24 * 60 * 60 * 1000, //1day for authorized cookie
-    keys: [process.env.COOKIE_KEY],
-  })
-);
->>>>>>> Stashed changes
 
 const uri = process.env.MONGO_URI;
 mongoose.connect(uri, {
@@ -53,7 +29,7 @@ mongoose.connect(uri, {
 });
 
 const db = mongoose.connection;
-db.once("open", () => { console.log("Mongo DB Atlas has been connected!!"); });
+db.once("open", () => { console.log("👏👏👏👏👏👏 Mongo DB Atlas has been connected! 👏👏👏👏👏👏"); });
 app.use(passport.initialize());
 app.use(passport.session());
 
