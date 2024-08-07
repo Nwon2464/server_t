@@ -31,8 +31,6 @@ const createTokenSendResponse = (user, res, next) => {
                  if (error) {
                      respondErrorToken422(res, next);
                  } else {
-                    // res.redirect("/");
-                    // console.log(user);
                      res.json({token, user});
                  }
              });
@@ -125,9 +123,27 @@ router.post("/login", (req, res, next) => {
     }
 });
 router.get("/current_user", (req, res) => {
-    console.log(req.user);
     res.json(req.user);
 });
+
+// router.get("/current_user",(req,res)=>{
+//     console.log(req.user, "----------",req.cookies);
+//     const token = req.cookies.jwt;
+//     if (!token) {
+//       return res.status(401).send('Access Denied');
+//     }
+//     try {
+
+//       const verified = jwt.verify(token, process.env.JWT_SECRET);
+//       req.user = verified;
+//       console.log(req.user,token);
+//       console.log( "from current user");
+
+//       res.send(req.user);
+//     } catch (err) {
+//       res.status(400).send('Invalid Token');
+//     }
+// });
 
 // auth logout
 router.get("/logout", (req, res) => {
@@ -138,10 +154,13 @@ router.get("/logout", (req, res) => {
 router.get("/google", passport.authenticate("google", {
     scope : [ "email", "profile" ],
 }));
+
 router.get("/google/redirect", passport.authenticate("google"), (req, res) => {
-    // console.log("SSS");
+    console.log(req.user);
     res.redirect("/");
-    // res.redirect("http://localhost:3000");
+
+    // res.send(req.user);
+
 });
 
 module.exports = router;

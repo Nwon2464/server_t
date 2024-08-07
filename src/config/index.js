@@ -1,15 +1,18 @@
 const passport = require("passport");
-const chalk = require("chalk");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const Users = require("../models/user");
+const keys =require("./keys");
+
+
 passport.serializeUser((user, done) => { done(null, user.id); });
 
 // // // browser sends the cookie back and received the id
 passport.deserializeUser((id, done) => { Users.findById(id).then((user) => { done(null, user); }); });
 passport.use(new GoogleStrategy({
-    clientID : process.env.GOOGLE_CLIENT_ID,
-    clientSecret : process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL : "https://server-t.vercel.app/auth/google/redirect",
+    clientID : keys.GOOGLE_CLIENT_ID,
+    clientSecret : keys.GOOGLE_CLIENT_SECRET,
+    callbackURL : "/auth/google/redirect",
+    proxy:true,
 },
                                 (accessToken, refreshToken, profile, done) => {
                                     // console.log(profile);
