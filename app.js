@@ -9,6 +9,7 @@ const passport = require("passport");
 const cookieSession = require("cookie-session");
 const authRoutes = require("./auth");
 require("./config");
+const path = require("path");
 
 const keys =require("./config/keys");
 const middlewares = require('./middlewares');
@@ -48,17 +49,10 @@ app.use(passport.session());
 //     });
 // });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use("/auth", authRoutes);
 app.use('/api/v1', api);
-
-if(process.env.NODE_ENV === "production"){
-    app.use(express.static('client/build'));
-    const path = require("path");
-    app.get("*",(req,res)=>{
-        res.sendFile(path.resolve(__dirname,'client','build','index.html'));
-    });
-}
-
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
