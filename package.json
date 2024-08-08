@@ -8,7 +8,7 @@
     "server": "nodemon src/index.js",
     "lint": "eslint --fix src",
     "test": "jest",
-    "vercel-build": "echo hello",
+    "build": "cd client && npm install && npm run build",
     "client": "npm run start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
