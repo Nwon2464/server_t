@@ -53,7 +53,6 @@ app.use("/auth", authRoutes);
 app.use('/api/v1', api);
 
 if(process.env.NODE_ENV === "production"){
-    console.log("ER");
     app.use(express.static('client/build'));
     const path = require("path");
     app.get("*",(req,res)=>{
