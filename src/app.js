@@ -52,9 +52,6 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use('/api/v1', api);
 
-app.use(middlewares.notFound);
-app.use(middlewares.errorHandler);
-
 if(process.env.NODE_ENV === "production"){
     app.use(express.static('client/build'));
     const path = require("path");
@@ -62,5 +59,9 @@ if(process.env.NODE_ENV === "production"){
         res.sendFile(path.resolve(__dirname,'client','build','index.html'));
     });
 }
+
+
+app.use(middlewares.notFound);
+app.use(middlewares.errorHandler);
 
 module.exports = app;
