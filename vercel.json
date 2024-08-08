@@ -1,11 +1,5 @@
 {
-    "version" :2,
-    "build":[
-        {
-            "src":"*.js",
-            "use":"@vercel/node"
-        }
-    ],
+    "$schema": "https://openapi.vercel.sh/vercel.json",
     "rewrites": [
         {
             "source": "/(.*)",
