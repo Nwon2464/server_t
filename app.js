@@ -48,7 +48,6 @@ app.use(passport.session());
 //     });
 // });
 
-
 app.use("/auth", authRoutes);
 app.use('/api/v1', api);
 
