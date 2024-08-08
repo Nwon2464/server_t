@@ -3,6 +3,7 @@ import {
     SIGNUP_ERROR,
     LOGIN_ERROR,
   } from "../actions/types";
+  
   const initial_state = {
     errorMessage: "",
   };
