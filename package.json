@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "server": "nodemon src/index.js",
     "lint": "eslint --fix src",
     "test": "jest",
-    "vercel-build": "echo hello"
+    "vercel-build": "echo hello",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "keywords": [],
   "author": "CJ R. <cj@null.computer> (https://w3cj.now.sh)",
@@ -20,6 +22,7 @@
   "dependencies": {
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
+    "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.1.0",
     "cors": "^2.8.5",
