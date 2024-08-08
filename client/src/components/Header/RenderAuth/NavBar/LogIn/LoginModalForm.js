@@ -11,7 +11,6 @@ const LoginModalForm = (props) => {
     // console.log(formValue);
     props.logIn(formValue);
   };
-  console.log(props,"SDFSF");
   return (
     <>
       {props.loading.loading ? (
@@ -62,9 +61,9 @@ const LoginModalForm = (props) => {
               <div className="app__flex__set">
                 <a
                   id="google__log"
-                  // href="https://server-t.vercel.app/auth/google"
+                  href="https://server-t.vercel.app/auth/google"
                   //relative path directs to localhost3000, needs proxy setup 
-                  href="/auth/google"
+                  // href="/auth/google"
                   className="ui red labeled icon button"
                 >
                   Log In With Google
