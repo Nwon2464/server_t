@@ -59,7 +59,9 @@ app.use(middlewares.errorHandler);
     // app.use(express.static('client/build'));
 
 app.use(express.static(path.join(__dirname, 'client', 'build')));
-    
+let d= path.join(__dirname, 'client', 'build');
+console.log(d, "----");
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });
