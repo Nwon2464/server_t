@@ -16,8 +16,8 @@ import {
 } from "./types";
 import { jwtDecode } from "jwt-decode";
 
-const DEPLOYMENT_URL="https://server-t.vercel.app";
-// const DEPLOYMENT_URL="http://localhost:5000";
+// const DEPLOYMENT_URL="https://server-t.vercel.app";
+const DEPLOYMENT_URL="http://localhost:5000";
 
 export const fetchAuth = () => async (dispatch) => {
     if(localStorage.token){
@@ -25,7 +25,8 @@ export const fetchAuth = () => async (dispatch) => {
         localStorage.userInfo = data.username;
         dispatch({ type: JWT_AUTH, payload: data.username });
     }else{
-        await axios.get(DEPLOYMENT_URL+"/auth/current_user").then((e)=>{
+        await axios.get("/auth/current_user").then((e)=>{
+          console.log(e.data, "??");
             dispatch({ type:FETCH_AUTH , payload: e.data });
         }).catch((err)=>{
             console.log("error from auth current_user");
@@ -38,7 +39,7 @@ export const fetchAuth = () => async (dispatch) => {
 export const signUpCreate = (formValues) => (dispatch, getState) => {
     dispatch({ type: LOADING_SPINNER, payload: true });
     axios
-      .post(`${DEPLOYMENT_URL}/auth/signup`, {
+      .post(`/auth/signup`, {
         ...formValues,
       })
       .then((res) => {
@@ -64,7 +65,7 @@ export const signUpCreate = (formValues) => (dispatch, getState) => {
   export const logIn = (formValues) => (dispatch, getState) => {
     dispatch({ type: LOADING_SPINNER, payload: true });
     axios
-      .post(`${DEPLOYMENT_URL}/auth/login`, {
+      .post(`/auth/login`, {
         ...formValues,
       })
       .then((res) => {
@@ -98,7 +99,7 @@ export const signUpCreate = (formValues) => (dispatch, getState) => {
     // history.go(0);
   };
 export const logOutAuth = () => async (dispatch) => {
-    return await axios.get(`${DEPLOYMENT_URL}/auth/logout`).then(()=>{
+    return await axios.get(`/auth/logout`).then(()=>{
       dispatch({ type: LOGOUT_AUTH });
       history.push("/");
     });
