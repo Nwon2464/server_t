@@ -68,3 +68,27 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
 });
+
+
+// {
+//     "version": 2,
+//     "builds": [
+//       {
+//         "src": "index.js",
+//         "use": "@vercel/node"
+//       },
+//       {
+//         "src": "client/package.json",
+//         "use": "@vercel/static-build",
+//         "config": {
+//           "distDir": "client/build"
+//         }
+//       }
+//     ],
+//     "routes": [
+//       {
+//         "src": "/(.*)",
+//         "dest": "/index.js"
+//       }
+//     ]
+//   }
