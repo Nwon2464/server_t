@@ -52,7 +52,7 @@ const LoginModalForm = (props) => {
                   Log In
                 </button>
               </div>
-              <div
+              {/* <div
                 style={{ fontSize: "0.8rem" }}
                 className="ui horizontal divider"
               >
@@ -69,7 +69,7 @@ const LoginModalForm = (props) => {
                   Log In With Google
                   <i className="google icon"></i>
                 </a>
-              </div>
+              </div> */}
             </form>
           </>
         </>
